@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import List
 
 class TreeNode:
     def __init__(self, val=0, left=None, right=None):
@@ -69,3 +70,113 @@ class Solution:
                 return q == p
             return q.val == p.val and f(q.left, p.right) and f(q.right, p.left)
         return f(root.left ,root.right)
+
+    def isBalanced(self, root: Optional[TreeNode]) -> bool:
+        '''
+        给定一个二叉树，判断它是否是 平衡二叉树
+
+        示例:
+            输入:root = [3,9,20,null,null,15,7]
+            输出:true
+        '''
+        def get_hight(node: Optional[TreeNode]) -> int:
+            if node == None:
+                return 0
+            left = get_hight(node.left)
+            if left == -1:
+                return -1
+            right = get_hight(node.right)
+            if right == -1 or abs(left - right) > 1:
+                return -1
+            return max(left, right) + 1
+        return get_hight(root) != -1
+    
+    def rightSideView(self, root: Optional[TreeNode]) -> List[int]:
+        '''
+        给定一个二叉树的 根节点 root,想象自己站在它的右侧
+        按照从顶部到底部的顺序，返回从右侧所能看到的节点值。
+    
+        示例:
+            输入:root = [1,2,3,null,5,null,4]
+            输出:[1,3,4]
+        '''
+        ans = []
+        def f(node: Optional[TreeNode], n: int) -> None:
+            if node == None:
+                return
+            if n == len(ans):
+                ans.append(node.val)
+            f(node.right, n + 1)
+            f(node.left, n + 1)
+        f(root, 0)
+        return ans
+    
+    def isValidBST_1(self, root: Optional[TreeNode], left = int('-inf'), right = int('inf')) -> bool:
+        '''
+        给你一个二叉树的根节点 root ，判断其是否是一个有效的二叉搜索树。
+
+        有效 二叉搜索树定义如下：
+
+            节点的左子树只包含 严格小于 当前节点的数。
+            节点的右子树只包含 严格大于 当前节点的数。
+            所有左子树和右子树自身必须也是二叉搜索树。
+
+        示例:
+            输入:root = [2,1,3]
+            输出:true
+        '''
+        if root == None:
+            return True
+        x = left < root.val < right
+        v = self.isValidBST_1(root.left, left, root.val)
+        n = self.isValidBST_1(root.right, root.val, right)
+        return x and v and n
+    
+    p = int('-inf')
+    def isValidBST_2(self, root: Optional[TreeNode]) -> bool:
+        '''
+        给你一个二叉树的根节点 root ，判断其是否是一个有效的二叉搜索树。
+
+        有效 二叉搜索树定义如下：
+
+            节点的左子树只包含 严格小于 当前节点的数。
+            节点的右子树只包含 严格大于 当前节点的数。
+            所有左子树和右子树自身必须也是二叉搜索树。
+
+        示例:
+            输入:root = [2,1,3]
+            输出:true
+        '''
+        if root == None:
+            return True
+        if self.isValidBST_2(root.left) == False:
+            return False
+        if root.val <= self.p:
+            return False
+        self.p = root.val
+        return self.isValidBST_2(root.right)
+    
+    def isValidBST_3(self, root: Optional[TreeNode]) -> bool:
+        '''
+        给你一个二叉树的根节点 root ，判断其是否是一个有效的二叉搜索树。
+
+        有效 二叉搜索树定义如下：
+
+            节点的左子树只包含 严格小于 当前节点的数。
+            节点的右子树只包含 严格大于 当前节点的数。
+            所有左子树和右子树自身必须也是二叉搜索树。
+
+        示例:
+            输入:root = [2,1,3]
+            输出:true
+        '''
+        def f(node: Optional[TreeNode]) -> List[int]:
+            if node == None:
+                return int('inf'), int('-inf')
+            left_min, left_max = f(node.left)
+            right_min, right_max = f(node.right)
+            x = node.val
+            if left_max >= x or right_min <= x:
+                return int('-inf'), int('inf')
+            return min(left_min, x), max(right_max, x)
+        return f(root)[1] != int('inf')
